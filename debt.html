@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Debt & Expense Tracker</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+</head>
+<body>
+    <header>
+        <div class="container">
+            <div class="header-content">
+                <h1><i class="fas fa-leaf"></i> Debt & Expense Tracker</h1>
+                <div class="app-actions">
+                    <button class="btn btn-warning" id="export-data"><i class="fas fa-file-export"></i> Export</button>
+                    <button class="btn btn-warning" id="print-report"><i class="fas fa-print"></i> Print</button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="nav-tabs">
+            <div class="nav-tab active" data-target="dashboard">
+                <i class="fas fa-chart-pie"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-tab" data-target="add-expense">
+                <i class="fas fa-plus-circle"></i>
+                <span>Add Expense</span>
+            </div>
+            <div class="nav-tab" data-target="debt-payment">
+                <i class="fas fa-money-bill-wave"></i>
+                <span>Debt Payment</span>
+            </div>
+            <div class="nav-tab" data-target="expense-summary">
+                <i class="fas fa-receipt"></i>
+                <span>Expense Summary</span>
+            </div>
+        </div>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section active">
+            <div class="section-header">
+                <h2><i class="fas fa-chart-pie"></i> Financial Overview</h2>
+                <div class="date-filter">
+                    <select id="month-filter">
+                        <option value="all">All Time</option>
+                        <option value="current" selected>Current Month</option>
+                        <option value="last">Last Month</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="stats-container">
+                <div class="stat-card">
+                    <h3>Monthly Salary</h3>
+                    <div class="stat-value" id="salary-display">₱18,000</div>
+                    <div class="stat-change">
+                        <button id="edit-salary" class="btn btn-success"><i class="fas fa-edit"></i> Edit</button>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Total Expenses</h3>
+                    <div class="stat-value" id="total-expenses">₱0</div>
+                    <div class="stat-change">
+                        <span class="positive"><i class="fas fa-arrow-up"></i> 0%</span>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Remaining Debt</h3>
+                    <div class="stat-value" id="remaining-debt">₱150,000</div>
+                    <div class="stat-change">
+                        <button id="edit-debt" class="btn btn-success"><i class="fas fa-edit"></i> Edit</button>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <h3>Remaining Budget</h3>
+                    <div class="stat-value" id="remaining-budget">₱18,000</div>
+                    <div class="stat-change">
+                        <span class="positive"><i class="fas fa-arrow-up"></i> 100%</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-container">
+                <div class="form-card">
+                    <h3>Debt Progress</h3>
+                    <div class="progress-container">
+                        <div class="progress-bar">
+                            <div class="progress-fill" id="debt-progress-bar" style="width: 0%"></div>
+                        </div>
+                        <div class="progress-text">
+                            <span>Paid: ₱<span id="debt-paid">0</span></span>
+                            <span>Remaining: ₱<span id="debt-remaining">150,000</span></span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-card">
+                    <h3>Budget Distribution</h3>
+                    <div class="chart-container">
+                        <div class="chart-wrapper">
+                            <canvas id="budget-chart"></canvas>
+                        </div>
+                        <div class="chart-legend" id="budget-legend">
+                            <!-- Legend will be populated here -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-card">
+                <h3>Spending by Category</h3>
+                <div class="chart-container">
+                    <canvas id="category-chart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Add Expense Section -->
+        <section id="add-expense" class="section">
+            <div class="section-header">
+                <h2><i class="fas fa-plus-circle"></i> Add New Expense</h2>
+            </div>
+            
+            <div class="form-container">
+                <div class="form-card">
+                    <form id="expense-form">
+                        <div class="form-group">
+                            <label for="category">Category</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-tag"></i>
+                                <select id="category" required>
+                                    <option value="">Select a category</option>
+                                    <option value="Food">Food</option>
+                                    <option value="Travel">Travel</option>
+                                    <option value="Utilities">Utilities</option>
+                                    <option value="WiFi">WiFi</option>
+                                    <option value="Laundry">Laundry</option>
+                                    <option value="Others">Others</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="amount">Amount (₱)</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-peso-sign"></i>
+                                <input type="number" id="amount" min="0" step="0.01" placeholder="0.00" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="date">Date</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-calendar"></i>
+                                <input type="date" id="date" required>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="description">Description (optional)</label>
+                            <div class="input-with-icon">
+                                <i class="fas fa-align-left"></i>
+                                <textarea id="description" rows="3" placeholder="Add a note about this expense"></textarea>
+                            </div>
+                        </div>
+                        
+                        <button type="submit" class="btn btn-primary" style="width: 100%;">
+                            <i class="fas fa-plus"></i> Add Expense
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="form-card">
+                    <h3>Quick Add</h3>
+                    <p>Common expense categories:</p>
+                    <div class="quick-actions">
+                        <button class="btn btn-warning" data-category="Food" data-amount="200"><i class="fas fa-utensils"></i> Food ₱200</button>
+                        <button class="btn btn-warning" data-category="Travel" data-amount="100"><i class="fas fa-bus"></i> Travel ₱100</button>
+                        <button class="btn btn-warning" data-category="Utilities" data-amount="1500"><i class="fas fa-bolt"></i> Utilities ₱1,500</button>
+                    </div>
+                    
+                    <h3 style="margin-top: 2rem;">Recent Expenses</h3>
+                    <div id="recent-expenses">
+                        <!-- Recent expenses will be populated here -->
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Debt Payment Section -->
+        <section id="debt-payment" class="section">
+            <div class="section-header">
+                <h2><i class="fas fa-money-bill-wave"></i> Make Debt Payment</h2>
+            </div>
+            
+            <div class="form-container">
+                <div class="form-card">
+                    <div class="form-group">
+                        <label for="payment-amount">Payment Amount (₱)</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-peso-sign"></i>
+                            <input type="number" id="payment-amount" min="0" step="0.01" value="2500" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="payment-date">Date</label>
+                        <div class="input-with-icon">
+                            <i class="fas fa-calendar"></i>
+                            <input type="date" id="payment-date" required>
+                        </div>
+                    </div>
+                    
+                    <button id="make-payment" class="btn btn-success" style="width: 100%;">
+                        <i class="fas fa-check-circle"></i> Record Payment
+                    </button>
+                </div>
+                
+                <div class="form-card">
+                    <h3>Payment History</h3>
+                    <div style="max-height: 300px; overflow-y: auto;">
+                        <table id="payment-history">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Amount</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Payment history will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Expense Summary Section -->
+        <section id="expense-summary" class="section">
+            <div class="section-header">
+                <h2><i class="fas fa-receipt"></i> Expense Summary</h2>
+                <div class="filter-options">
+                    <select id="category-filter">
+                        <option value="all">All Categories</option>
+                        <option value="Food">Food</option>
+                        <option value="Travel">Travel</option>
+                        <option value="Utilities">Utilities</option>
+                        <option value="WiFi">WiFi</option>
+                        <option value="Laundry">Laundry</option>
+                        <option value="Others">Others</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-container">
+                <div class="form-card">
+                    <h3>Recent Expenses</h3>
+                    <div style="max-height: 400px; overflow-y: auto;">
+                        <table id="expenses-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Description</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Expenses will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="form-card">
+                    <h3>Spending by Category</h3>
+                    <div id="category-breakdown">
+                        <!-- Category breakdown will be populated here -->
+                    </div>
+                </div>
+            </div>
+            
+            <div class="reset-section">
+                <button id="reset-month" class="btn btn-danger"><i class="fas fa-sync"></i> Reset Month</button>
+                <button id="clear-all" class="btn btn-danger"><i class="fas fa-trash"></i> Clear All Data</button>
+            </div>
+        </section>
+    </div>
+
+    <div class="notification success" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <div class="notification-content">
+            <div class="notification-title">Success</div>
+            <div class="notification-message">Operation completed successfully</div>
+        </div>
+    </div>
+</body>
+<script src="js/script.js"></script>
+</html>
